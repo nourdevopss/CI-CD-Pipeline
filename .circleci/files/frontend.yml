@@ -15,12 +15,13 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
-
+  
   WebsiteBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref 'WebsiteBucket'
       PolicyDocument:
+        Version: "2012-10-17"
         Statement:
           - Sid: PublicReadForGetBucketObjects
             Effect: Allow
@@ -28,6 +29,15 @@ Resources:
             Action: s3:GetObject
             Resource: !Join ['', ['arn:aws:s3:::', !Ref 'WebsiteBucket', '/*']]
 
+      # Add IAM policy to allow PutBucketPolicy access
+      PolicyName: AllowPutBucketPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowPutBucketPolicy
+            Effect: Allow
+            Action: s3:PutBucketPolicy
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref 'WebsiteBucket']]
 
 Outputs:
   WebsiteURL:
