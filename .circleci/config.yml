@@ -229,19 +229,17 @@ jobs:
 
   deploy-frontend:
     docker:
-      # Docker image here that supports AWS CLI
-     # - image: circleci/node:13.8.0
-      - image: node:latest
-    steps:
-      # Checkout code from git
-      - checkout
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update --no-cache tar gzip ansible curl
-            npm install -g aws-cli
+     - image: amazon/aws-cli
+  steps:
+    # Checkout code from git
+    - checkout
+    - attach_workspace:
+        at: ~/
+    - run:
+        name: Install dependencies
+        command: |
+          apt-get update
+          apt-get install -y tar gzip ansible curl
       - run:
           name: Get backend url
           command: |
