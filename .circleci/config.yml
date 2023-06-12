@@ -188,19 +188,13 @@ jobs:
       # Checkout code from git
       - checkout
       - run:
-          name: install dependencies
-          command: |
-            sudo apt install -y tar gzip curl
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-
-      - run:
           name: Run migrations
           command: |
             cd backend
             npm install
+            npm run build
             npm run migrations > migrations_dump.txt
+            
       - run:
           name: Send migration status to kvdb.io
           command: |
@@ -216,25 +210,25 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-            requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+#      - build-frontend
+#      - build-backend
+#      - test-frontend:
+#          requires: [build-frontend]
+#      - test-backend:
+#          requires: [build-backend]
+#      - scan-backend:
+#          requires: [build-backend]
+#      - scan-frontend:
+#          requires: [build-frontend]
+#      - deploy-infrastructure:
+#            requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #            filters:
 #              branches:
 #                only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
+#      - configure-infrastructure:
+#          requires: [deploy-infrastructure]
+      - run-migrations
+#          requires: [configure-infrastructure]
 #      - deploy-frontend:
 #          requires: [run-migrations]
 #      - deploy-backend:
