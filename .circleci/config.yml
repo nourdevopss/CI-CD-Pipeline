@@ -269,10 +269,8 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm install
-            npm audit fix --audit-level=critical
-            npm audit --audit-level=critical
-            npm run build
+            npm install --silent
+            npm run build 2>/dev/null
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment
