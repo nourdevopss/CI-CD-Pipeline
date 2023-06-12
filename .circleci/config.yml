@@ -183,7 +183,7 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-        - image: circleci/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
@@ -209,7 +209,7 @@ jobs:
                 # If you are using kvdb.io, generate the bucket ID "9yddmhENcubMua6ScAwFvx" in your local terminal first
                 curl https://kvdb.io/9yddmhENcubMua6ScAwFvx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-#      - destroy-environment
+      - destroy-environment
 #      - revert-migrations   
 
 workflows:
