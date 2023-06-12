@@ -229,7 +229,7 @@ jobs:
 
   deploy-frontend:
     docker:
-     - image: amazon/aws-cli
+     - image: circleci/node:14
     steps:
       # Checkout code from git
       - checkout
@@ -238,8 +238,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get update
-            apt-get install -y tar gzip ansible curl
+          apt-get update
+          apt-get install -y tar gzip ansible curl
       - run:
           name: Get backend url
           command: |
