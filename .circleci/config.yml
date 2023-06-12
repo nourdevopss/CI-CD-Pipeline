@@ -238,10 +238,21 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Installing necessary packages
           command: |
-            sudo apt install python3.8
-            apk add --update --no-cache tar gzip nodejs npm ansible curl aws-cli
+            sudo apt update
+            sudo apt install -y tar gzip curl software-properties-common
+      - run:
+          name: Installing aws-cli
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Installing ansible
+          command: |
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible
       - run:
           name: Get backend url
           command: |
