@@ -229,7 +229,9 @@ jobs:
 
   deploy-frontend:
     docker:
-     - image: circleci/node:14
+      # Docker image here that supports AWS CLI
+     # - image: circleci/node:13.8.0
+      - image: python:3.10-alpine3.16
     steps:
       # Checkout code from git
       - checkout
@@ -238,8 +240,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get update
-            apt-get install -y tar gzip ansible curl
+            sudo apt install python3.8
+            apk add --update --no-cache tar gzip nodejs npm ansible curl aws-cli
       - run:
           name: Get backend url
           command: |
@@ -257,6 +259,8 @@ jobs:
           command: |
             cd frontend
             npm install
+            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
