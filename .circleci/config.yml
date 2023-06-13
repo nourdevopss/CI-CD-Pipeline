@@ -229,79 +229,67 @@ jobs:
 
   deploy-frontend:
     docker:
-      # Docker image here that supports AWS CLI
-     # - image: circleci/node:13.8.0
-      - image: cimg/node:13.14.0
+      - image: amazon/aws-cli
     steps:
-      # Checkout code from git
       - checkout
       - attach_workspace:
-          at: ~/
+            at: ~/.circleci/ansible      
       - run:
-          name: Installing necessary packages
+          name: Install dependencies
           command: |
-            sudo apt update
-            sudo apt install -y tar gzip curl software-properties-common
-      - run:
-          name: Installing aws-cli
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
-          name: Installing ansible
-          command: |
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible
+             sudo apt install python3.8
+             apk add --update ansible  
+             npm install 
       - run:
           name: Get backend url
           command: |
-            # your code here
-            export BACKEND_IP=$(aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
-            --output text)
+            # Get public api
+            #  aws ec2 describe-instances --filters "Name=instance-type,Values=t2.micro" --query "Reservations[].Instances[].PublicIpAddress"
+            export BACKEND_IP=$(
+               aws ec2 describe-instances \
+            --filters \
+            "Name=instance-state-name,Values=running" \
+            "Name=instance-type,Values=t2.micro" \
+            --query "Reservations[*].Instances[*].[PublicIpAddress]"\
+            --output text
+            )
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo "API_URL=http://${BACKEND_IP}:3030" >> frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm install --silent
-            npm run build 2>/dev/null
+            npm install
+            npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - destroy-environment
-#          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations
-#          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}   
 
 workflows:
   default:
     jobs:
-#      - build-frontend
-#      - build-backend
-#      - test-frontend:
-#          requires: [build-frontend]
-#      - test-backend:
-#          requires: [build-backend]
-#      - scan-backend:
-#          requires: [build-backend]
-#      - scan-frontend:
-#          requires: [build-frontend]
-#      - deploy-infrastructure:
-#            requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#            filters:
-#              branches:
-#                only: [test-feature-branch]
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
-#      - run-migrations:
-#          requires: [configure-infrastructure]
-      - deploy-frontend
-#          requires: [run-migrations]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+            requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+            filters:
+              branches:
+                only: [test-feature-branch]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
 #      - deploy-backend:
 #          requires: [run-migrations]
 #      - smoke-test:
