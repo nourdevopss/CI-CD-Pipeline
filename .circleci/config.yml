@@ -280,7 +280,7 @@ jobs:
 
   deploy-backend:
       docker:
-          - image: amazon/aws-cli
+          - image: cimg/node:13.14.0
       steps:
           - checkout    
           - add_ssh_keys:
@@ -288,12 +288,21 @@ jobs:
           - attach_workspace:
                 at: ~/.circleci/ansible      
           - run:
-              name: Install dependencies
+              name: Installing necessary packages
               command: |
-                sudo apt install python3.8
-                sudo apt install gzip
-                apk add --update ansible  
-                npm install 
+                sudo apt update
+                sudo apt install -y tar gzip curl software-properties-common
+          - run:
+              name: Installing aws-cli
+              command: |
+                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                unzip awscliv2.zip
+                sudo ./aws/install
+          - run:
+              name: Installing ansible
+              command: |
+                sudo add-apt-repository --yes --update ppa:ansible/ansible
+                sudo apt install ansible
 
           - run:
               name: Deploy backend
