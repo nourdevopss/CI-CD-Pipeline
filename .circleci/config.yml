@@ -347,7 +347,7 @@ jobs:
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"  #   curl -s ${API_URL}/api/status -v 
-            RESPONSE=$(curl -s ${API_URL}/api/status)
+            RESPONSE=$(curl -s ${API_URL}/api/status 2>&1)
             echo "Response: ${RESPONSE}"
             if echo "${RESPONSE}" | grep -q "ok"
             then
@@ -355,6 +355,7 @@ jobs:
             else
               exit 1
             fi
+
       - run:
           name: Frontend smoke test.
           command: |
