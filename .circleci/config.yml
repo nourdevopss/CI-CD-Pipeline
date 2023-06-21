@@ -341,19 +341,20 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-
-            PUBLIC_IP="3.231.26.110"
-            API_URL="http://${PUBLIC_IP}:3030/api/status"
-
-            RESPONSE=$(curl -s "${API_URL}" 2>&1)
+            export BACKEND_IP=$(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"  #   curl -s ${API_URL}/api/status -v 
+            RESPONSE=$(curl -s ${API_URL}/api/status 2>&1)
             echo "Response: ${RESPONSE}"
-
-            if echo "${RESPONSE}" | grep -q "ok"; then
-              exit 0  # API status is "ok"
+            if echo "${RESPONSE}" | grep -q "ok"
+            then
+              exit 0
             else
-              exit 1  # API status is not "ok"
+              exit 1
             fi
-
 
       - run:
           name: Frontend smoke test.
@@ -371,6 +372,7 @@ jobs:
    
       - destroy-environment  
       - revert-migrations
+      
 
 workflows:
   default:
