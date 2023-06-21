@@ -323,7 +323,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: cimg/node:13.8.0
+      - image: alpine:latest
     steps:
       # - run:
       #     name: Install dependencies
