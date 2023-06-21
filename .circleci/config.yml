@@ -323,6 +323,7 @@ jobs:
 
   smoke-test:
     docker:
+      # Lightweight Docker image
       - image: python:3.10-alpine3.16
     steps:
       # Checkout code from git
@@ -341,14 +342,12 @@ jobs:
             --filters Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"  #   curl -s ${API_URL}/api/status -v 
-            RESPONSE=$(curl -s ${API_URL}/api/status 2>&1)
-            echo "Response: ${RESPONSE}"
-            if echo "${RESPONSE}" | grep -q "ok"
+            echo "${API_URL}"
+            if curl -s "${API_URL}/api/status" | grep "ok"
             then
-              exit 0
+                return 0
             else
-              exit 1
+                return 1
             fi
       - run:
           name: Frontend smoke test.
