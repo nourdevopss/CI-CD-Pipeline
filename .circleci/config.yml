@@ -323,13 +323,8 @@ jobs:
 
   smoke-test:
     docker:
-      - image: alpine:latest
+      - image: cimg/node:13.8.0
     steps:
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       yum -y install jq tar gzip git curl
-      # - install_awscli
       - run:
           name: Install AWS CLI 
           command: |
@@ -355,7 +350,6 @@ jobs:
             else
               exit 1
             fi
-
       - run:
           name: Frontend smoke test.
           command: |
@@ -368,8 +362,7 @@ jobs:
             else
               exit 1
             fi
-
-   
+            
       - destroy-environment  
       - revert-migrations
 
